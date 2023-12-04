@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>80093235-84d1-4101-8922-8dd7b6b92040</UserSecretsId>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="7.0.12" />
+		<PackageReference Include="Microsoft.Azure.SignalR" Version="1.21.7" />
+		<PackageReference Include="Microsoft.Identity.Web" Version="2.15.3" />
+		<PackageReference Include="Microsoft.Identity.Web.UI" Version="2.15.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\FeatureStateDb\FeatureStateDb.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\js\" />
+	</ItemGroup>
+
+</Project>

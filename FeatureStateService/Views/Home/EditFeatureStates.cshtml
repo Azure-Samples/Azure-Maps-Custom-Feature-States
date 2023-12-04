@@ -1,0 +1,94 @@
+﻿@{
+    ViewData["Title"] = "Edit Feature States";
+}
+
+<p>Make feature state changes.</p>
+
+<div id="alertPlaceholder"></div>
+
+<div class="card-body">
+    <form id="details" class="row">
+        <div class="form-group">
+            <label for="FeatureId">Feature Name</label><br />
+            <select id="FeatureId" name="Feature" class="border dropdown-item input-sm">
+                @foreach (var pair in ViewBag.Features)
+                {
+                    <option value="@pair.Key">@pair.Value</option>
+                }
+            </select>
+            <br />
+            <br />
+        </div>
+
+        <div class="form-group">
+            <label for="FeatureState">Feature State</label><br />
+            <select id="FeatureState" name="FeatureState" class="border dropdown-item input-sm">
+                @foreach (var featureState in ViewBag.FeatureStates)
+                {
+                    <option value="@featureState">@featureState</option>
+                }
+            </select>
+            <br />
+            <br />
+        </div>
+        <div class="mt-2">
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</div>
+
+
+@section scripts {
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#FeatureId').select2();
+            $('#FeatureState').select2();
+        });
+
+        const alertPlaceholder = $('#alertPlaceholder');
+
+        // Show an alert on the page.
+        function showAlert(message, type) {
+            Array.from(document.getElementsByClassName('alert-dismissible')).forEach(alert => alert.remove());
+            alertPlaceholder.append(`<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`);
+        }
+
+        // Save button click.
+        $('#details').submit(event => {
+            event.preventDefault();
+
+            // Process details before save.
+            const saveData = {
+                id: $('#FeatureId').val().trim(),
+                value: $('#FeatureState').val().trim(),
+            };
+
+            const data = JSON.stringify(saveData);
+
+            // Save changes
+            $.ajax({
+                type: 'POST',
+                url: '/api/featurestates',
+                contentType: 'application/json',
+                data: data,
+                success: () => showAlert(`Change ${data} saved successfully.`, 'success'),
+                error: e => {
+                    if (e.responseJSON && e.responseJSON.errors) {
+                        const errors = e.responseJSON.errors;
+                        for (const key in errors) {
+                            if (errors.hasOwnProperty(key)) {
+                                errors[key].forEach(errorMessage => showAlert(`Validation Error: ${errorMessage}`, 'danger'));
+                            }
+                        }
+                    } else {
+                        showAlert('Failed to save change, please try again!', 'danger');
+                    }
+                }
+            });
+        });
+
+    </script>
+}

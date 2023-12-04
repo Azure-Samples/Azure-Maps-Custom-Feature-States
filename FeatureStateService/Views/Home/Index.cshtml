@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="p-5 mb-4 bg-body-tertiary rounded-3">
+    <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold">Azure Maps Custom Feature States</h1>
+        <p class="col-md-8 fs-4">A custom implementation of dynamic styling for Indoor Maps.</p>
+
+        <div>
+            @Html.ActionLink("View Map", "ViewMap", "Home", null, new { @class = "btn-primary" })
+        </div>
+
+        <div>
+            @Html.ActionLink("Edit Feature States", "EditFeatureStates", "Home", null, new { @class = "btn-warning" })
+        </div>
+    </div>
+</div>
