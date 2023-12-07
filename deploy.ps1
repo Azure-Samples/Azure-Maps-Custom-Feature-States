@@ -116,14 +116,19 @@ if ($Help.IsPresent)
 
 function CreateLogDirectory
 { 	
-    $TARGETDIR = "$env:HOMEDRIVE\Logs"
+    $TARGETDIR = If ($null -eq $env:AZUREPS_HOST_ENVIRONMENT) {"$env:HOMEDRIVE\Logs"} Else {"$env:HOME\Logs"}
     if ( -Not (Test-Path -Path $TARGETDIR ) ) {
         New-Item -ItemType directory -Path $TARGETDIR | Out-Null
     }
    
-   $TARGETDIR = $TARGETDIR + "\" + "customfeaturestates_deploy.tsv"
+   $TARGETDIR = $TARGETDIR + "\" + "customfeaturestates_deploy_log.tsv"
 
    return $TARGETDIR
+}
+
+function GetTempFile([string]$fileName)
+{
+    return [System.IO.Path]::GetTempPath() + "\" + $fileName
 }
 
 filter Out-Stream
@@ -193,7 +198,7 @@ echo "- Logs written to $logLocation"
 try
 {
     # Version check
-    [version]$azcliversion = $(az version --query '\"azure-cli\"' -o tsv)
+    [version]$azcliversion = $(-join (az version) | convertFrom-Json).'azure-cli'
     [version]$minversion = '2.52.0'
     if ($azcliversion -lt $minversion)
     {
@@ -260,7 +265,7 @@ try
     $azuremapsDomain = "https://$azuremapsGeography.atlas.microsoft.com"
     Write-Info "- Uploading drawing package using creator account from '$azuremapsDrawingPackageUri' to '$azuremapsDomain'..."
     Write-Info "- This operation may take several minutes; please wait..."
-    $packageFilePath = "$env:TEMP\drawing_pacakage_$Name.zip"
+    $packageFilePath = GetTempFile("drawing_package_$Name.zip")
     iwr "$azuremapsDrawingPackageUri" -OutFile $packageFilePath
     $authPart = "&subscription-key=$azuremapssubscriptionkey"
     $uduri = "$azuremapsDomain/mapData/upload?api-version=1.0&dataFormat=zip"
@@ -335,11 +340,11 @@ try
 
     # Deploy Azure Maps Custom Feature States
     Write-Info "- Initiating the deployment of the Custom Feature States website..."
-    $deploymentPath = "$env:TEMP\customfeaturestates_binaries.zip"
+    $deploymentPath = GetTempFile("customfeaturestates_binaries.zip")
     if ($(Test-Path -path '.\FeatureStateService\Properties\PublishProfiles\FolderProfile.pubxml' -PathType Leaf))
     {
         Write-Info "- Building deployment zip from local sources..."
-        $tempPublishPath = "$env:TEMP\customfeaturestates_publish"
+        $tempPublishPath = GetTempFile("customfeaturestates_publish")
         dotnet publish FeatureStateService -o $tempPublishPath -p:PublishProfile=FolderProfile | Out-Debug
         Test-LastExitCode
         Compress-Archive $tempPublishPath\* $deploymentPath -Force | Out-Debug
