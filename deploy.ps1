@@ -54,17 +54,17 @@ function Process-LRO
 
     if ($PSBoundParameters.ContainsKey("filePath"))
     {
-        $response = Invoke-RestMethod -Uri $uri -Method Post -InFile $filePath -ContentType $contentType -StatusCodeVariable scv -ResponseHeadersVariable responseHeader
+        $response = Invoke-RestMethod -Uri $uri -Method Post -InFile $filePath -ContentType $contentType -StatusCodeVariable scv -ResponseHeadersVariable responseHeader -SkipHttpErrorCheck
     }
     else
     {
-        $response = Invoke-RestMethod -Uri $uri -Method Post -StatusCodeVariable scv -ResponseHeadersVariable responseHeader -ContentType 'Application/json'
+        $response = Invoke-RestMethod -Uri $uri -Method Post -StatusCodeVariable scv -ResponseHeadersVariable responseHeader -ContentType 'Application/json' -SkipHttpErrorCheck
     }
 
     # Check if the response status code is 202 - Accepted
     if ($scv -ne 202)
     {
-        Write-Err "Failed to send $operationName request. Status code: $scv"
+        Write-Err "Failed to send $operationName request. Status code: $scv Response: $(ConvertTo-Json $response)"
         exit 1
     }
 
@@ -91,7 +91,7 @@ function Process-LRO
     # Check if the response JSON has a "status" field set to "Failed" for failed responses
     if ($status -eq "Failed")
     {
-        Write-Err "Failed to create artifact for $operationName request. Status: $($statusResponse.statusMessage), Code: $scv, Response :$statusResponse"
+        Write-Err "Failed to create artifact for $operationName request. Status: $($statusResponse.statusMessage), Code: $scv, Response: $(ConvertTo-Json $statusResponse)"
         exit 1
     }
 
@@ -99,7 +99,7 @@ function Process-LRO
 
     if ($resourceLocation -like '')
     {
-        Write-Err "Failed to determine resource location from response for $operationName request. Response: $statusResponse"
+        Write-Err "Failed to determine resource location from response for $operationName request. Response: $(ConvertTo-Json $statusResponse)"
         exit 1
     }
 
