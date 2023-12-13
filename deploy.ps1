@@ -155,13 +155,13 @@ filter Out-Debug
 
 function Write-Err([string]$message)
 {
-    echo $message
+    Write-Output $message
     Write-Log -Message "$message" -Logfile $logLocation -Severity Error
 }
 
 function Write-Info([string]$message)
 {
-    echo $message
+    Write-Output $message
     Write-Log -Message "$message" -Logfile $logLocation -Severity Information
 }
 
@@ -190,10 +190,10 @@ function Write-Log
     } | ConvertTo-Csv -Delimiter "`t" -NoTypeInformation | Select-Object -Skip 1 | Out-File -Append -FilePath $LogFile
 }
 
-echo "Starting..."
+Write-Output "Starting..."
 $ErrorActionPreference = "Stop"
 $logLocation = CreateLogDirectory
-echo "- Logs written to $logLocation"
+Write-Output "- Logs written to $logLocation"
 
 try
 {
@@ -209,7 +209,7 @@ try
     $Name = $Name.ToLower()
 
     # Generate a random suffix for resources
-    $suffix = If ($ResourceSuffix -ne $null) {$ResourceSuffix} Else {Get-Random}
+    $suffix = If ($null -ne $ResourceSuffix) {$ResourceSuffix} Else {Get-Random}
 
     # General Configuration
     $group = If ($ResourceGroup -ne "") {$ResourceGroup} Else {"rg-$Name"}
@@ -223,7 +223,7 @@ try
     # Azure Maps Configuration
     $azuremapsDrawingPackageUri = If ($DrawingPackageUri -ne "") {$DrawingPackageUri} Else {"https://github.com/Azure-Samples/am-creator-indoor-data-examples/raw/master/Drawing%20Package%202.0/Sample%20-%20Contoso%20Drawing%20Package.zip"}
     $azuremapsSourceLayer = "room" # this may be different for your own map
-    $azuremapsAPIVersion = "2023-07-01"
+    $azuremapsAPIVersion = "2023-03-01-preview"
 
     # Geography
     $geography = $(az account list-locations --query "[?name == '$Location'].{GG:metadata.geographyGroup}" -o tsv)
@@ -266,7 +266,7 @@ try
     Write-Info "- Uploading drawing package using creator account from '$azuremapsDrawingPackageUri' to '$azuremapsDomain'..."
     Write-Info "- This operation may take several minutes; please wait..."
     $packageFilePath = GetTempFile("drawing_package_$Name.zip")
-    iwr "$azuremapsDrawingPackageUri" -OutFile $packageFilePath
+    Invoke-WebRequest "$azuremapsDrawingPackageUri" -OutFile $packageFilePath
     $authPart = "&subscription-key=$azuremapssubscriptionkey"
     $uduri = "$azuremapsDomain/mapData/upload?api-version=1.0&dataFormat=zip"
     $conversionUri = "$azuremapsDomain/conversions?api-version=$azuremapsAPIVersion&dwgPackageVersion=2.0"
@@ -354,7 +354,7 @@ try
     else
     {
         Write-Info "- Downloading deployment zip..."
-        iwr "https://samples.azuremaps.com/install/customfeaturestates.zip" -OutFile $deploymentPath
+        Invoke-WebRequest "https://samples.azuremaps.com/install/customfeaturestates.zip" -OutFile $deploymentPath
         Test-LastExitCode
     }
     az webapp deployment source config-zip -g $group -n $webappname --src $deploymentPath | Out-Stream
