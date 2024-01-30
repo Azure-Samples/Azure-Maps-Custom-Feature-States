@@ -19,11 +19,6 @@
 
     <script>
         var map, indoorManager;
-        var featureStates = new Map();
-        var featureCollection = new Object();
-
-        // Feature states are visualized by drawing a separate layer.
-        const featureStateLayerName = "featureStateLayer";
 
         // Show an alert on the page.
         function showAlert(message, type) {
@@ -33,18 +28,7 @@
             alertPlaceholder.append(`<div class="alert alert-${type} alert-dismissible" role="alert">${message}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`);
         }
 
-        async function GetFeatures() {
-            var requestOptions = {
-                method: 'GET',
-                redirect: 'follow'
-            };
-
-            const response = await fetch('/api/features', requestOptions)
-            return await response.json();
-        }
-
         async function setupMap() {
-            featureCollection = await GetFeatures();
 
             map = new atlas.Map('myMap', {
                 zoom: 19,
@@ -73,6 +57,7 @@
             // Wait until the map resources are loaded.
             map.events.addOnce('load', function () {
                 setupIndoorManager();
+                setupStyleControl();
                 setupClickHandler();
             });
             map.events.addOnce('idle', function () {
@@ -96,34 +81,40 @@
 
             map.events.add("levelchanged", indoorManager, (eventData) => {
                 console.log("The level has changed:", eventData);
-                setupFeatureStateLayer()
             });
 
             map.events.add("facilitychanged", indoorManager, (eventData) => {
                 console.log("The facility has changed:", eventData);
-                setupFeatureStateLayer()
+            });
+        }
+
+        function setupStyleControl() {
+            map.controls.add(new atlas.control.StyleControl({
+                mapStyles: 'all'
+            }), {
+                position: 'top-left'
             });
         }
 
         function setupClickHandler() {
             map.events.add("contextmenu", function (e) {
-                if (map.layers.getLayerById(featureStateLayerName) == null) {
-                    return;
-                }
-
                 const features = map.layers
-                    .getRenderedShapes(e.position, featureStateLayerName)
-                    .filter(feature => indoorManager.getCurrentFacilityDetails().slice(-1).includes(feature.data.properties.levelOrdinal));
+                    .getRenderedShapes(e.position, '@ViewBag.FeatureLayer')
+                    .filter(feature => feature.sourceLayer == '@ViewBag.SourceLayer');
 
                 if (!features.length) {
                     return;
                 }
 
                 features.forEach(function (feature) {
-                    const message = `Right-clicked on feature with name ${feature.data.properties.name}`
+                    const message = `Right-clicked on feature with name ${feature.properties.name}`
                     showAlert(message, 'success')
                 });
             });
+        }
+
+        function setFeatureState(id, featureState) {
+            map.sources.setFeatureState(id, '@ViewBag.TilesetId', { customFeatureState: featureState }, '@ViewBag.SourceLayer');
         }
 
         function connectToSignalR() {
@@ -131,21 +122,15 @@
                 const onfeatureStateSnapshot = function (message) {
                     console.log('SignalR onfeatureStateSnapshot', message);
 
-                    featureStates = new Map(Object.entries(message))
-
-                    setupFeatureStateLayer();
+                    for (let [id, featureState] of Object.entries(message)) {
+                        setFeatureState(id, featureState);
+                    }
                 };
 
                 const onfeatureStateChange = function (id, featureState) {
                     console.log('SignalR onfeatureStateChange', id, featureState);
 
-                    featureStates.set(id, featureState)
-
-                    const feature = map.sources.getById(featureStateLayerName).getShapeById(id);
-
-                    if (feature != null) {
-                        feature.addProperty('featureState', featureState)
-                    }
+                    setFeatureState(id, featureState);
                 };
 
                 connection.on('featureStateSnapshot', onfeatureStateSnapshot);
@@ -172,46 +157,6 @@
             connection.start()
                 .then(() => onConnected(connection))
                 .catch(error => console.error(error.message));
-        }
-
-        function setupFeatureStateLayer() {
-            if (map.layers.getLayerById(featureStateLayerName) != null) {
-                map.layers.remove(featureStateLayerName)
-            }
-
-            if (map.sources.getById(featureStateLayerName) != null) {
-                map.sources.remove(featureStateLayerName)
-            }
-
-            datasource = new atlas.source.DataSource(featureStateLayerName)
-            map.sources.add(datasource);
-
-            filteredFeatures = featureCollection.features
-                .filter(feature => indoorManager.getCurrentFacilityDetails().slice(-1).includes(feature.properties.levelOrdinal))
-                .filter(feature => feature.geometry.type == "Polygon" || feature.geometry.type == "MultiPolygon");
-
-            for (feature of filteredFeatures) {
-                feature.properties.featureState = featureStates.get(feature.id) ?? "unknown";
-            }
-
-            features = {
-                "type": "FeatureCollection",
-                "ontology": "custom",
-                "features": filteredFeatures
-            };
-
-            datasource.add(features);
-
-            map.layers.add([
-                new atlas.layer.PolygonLayer(datasource, featureStateLayerName, {
-                    fillColor: [
-                        'match',
-                        ['get', 'featureState'],
-        @(Html.Raw(@ViewBag.StyleRules)),
-                        "#00000000"
-                    ]
-                }),
-            ]);
         }
 
         $(document).ready(function () {

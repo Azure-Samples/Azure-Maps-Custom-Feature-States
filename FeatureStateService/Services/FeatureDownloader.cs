@@ -6,6 +6,9 @@ using System.Web;
 
 namespace FeatureStateService.Services;
 
+/// <summary>
+/// Downloads all features for the configured DatasetId from Azure Maps.
+/// </summary>
 public class FeatureDownloader
 {
     private readonly FeatureDownloaderConfig _featureDownloaderConfig;

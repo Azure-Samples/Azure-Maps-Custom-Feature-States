@@ -5,6 +5,10 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace FeatureStateService.Hubs;
 
+/// <summary>
+/// A SignalR Hub for distributing feature states updates to connected clients and for sending a snapshot
+/// of all feature states to newly connected clients.
+/// </summary>
 [Authorize]
 public partial class FeatureStatesHub : Hub
 {

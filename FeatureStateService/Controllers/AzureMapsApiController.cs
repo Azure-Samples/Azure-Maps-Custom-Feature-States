@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace FeatureStateService.Controllers;
 
+/// <summary>
+///  An API Controller for Azure Maps data; currently used for providing SAS tokens to clients for authenticating with Azure Maps.
+/// </summary>
 [Route("api/azuremaps")]
 [ApiController]
 public class AzureMapsApiController : ControllerBase

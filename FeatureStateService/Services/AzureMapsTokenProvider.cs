@@ -3,6 +3,9 @@ using Azure.Identity;
 
 namespace FeatureStateService.Services;
 
+/// <summary>
+/// Provides SAS tokens for authenticating with Azure Maps. Used by browser clients and by the <see cref="FeatureDownloader"/>.
+/// </summary>
 public class AzureMapsTokenProvider
 {
     /// <summary>

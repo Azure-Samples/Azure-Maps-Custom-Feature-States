@@ -6,6 +6,9 @@ using System.Collections.Concurrent;
 
 namespace FeatureStateService.Services;
 
+/// <summary>
+/// Represents a latest-value store of feature states for all features. Updates are propagated to connected clients and to the database.
+/// </summary>
 public class FeatureStatesStore
 {
     private readonly ConcurrentDictionary<string, string> _featureStatesById;

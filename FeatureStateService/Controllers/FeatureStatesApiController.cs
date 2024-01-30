@@ -3,6 +3,9 @@
 using FeatureStateService.Services;
 using Microsoft.AspNetCore.Mvc;
 
+/// <summary>
+///  An API Controller for feature states keyed by featureId.
+/// </summary>
 [Route("api/featurestates")]
 [ApiController]
 public class FeatureStatesApiController : ControllerBase

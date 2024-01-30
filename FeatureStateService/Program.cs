@@ -1,3 +1,10 @@
+// Azure Maps Custom Feature States (version 1.0-rc.1)
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// https://github.com/Azure-Samples/Azure-Maps-Custom-Feature-States
+
+// This source code is licensed under the MIT license found in the
+// LICENSE file in the root directory of this source tree.
+
 using FeatureStateDb;
 using FeatureStateDb.Config;
 using FeatureStateService.Config;
@@ -19,7 +26,7 @@ services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
         .AddMicrosoftIdentityWebApp(configuration.GetSection("AzureAd"));
 
 services.AddSingleton(configuration.GetSection("AzureMaps").Get<AzureMapsConfig>()!);
-services.AddSingleton(configuration.GetSection("Styles").Get<StyleConfig>()!);
+services.AddSingleton(configuration.GetSection("EditFeatureStates").Get<EditFeatureStatesConfig>()!);
 services.AddSingleton(configuration.GetSection("FeatureDownloader").Get<FeatureDownloaderConfig>()!);
 
 

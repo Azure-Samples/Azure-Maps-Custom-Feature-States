@@ -6,6 +6,9 @@ using Container = Microsoft.Azure.Cosmos.Container;
 
 namespace FeatureStateDb;
 
+/// <summary>
+/// Reads the latest feature states of all features from CosmosDB and writes updates to it.
+/// </summary>
 public class FeatureStateRepository
 {
     private readonly ILogger<FeatureStateRepository> _logger;

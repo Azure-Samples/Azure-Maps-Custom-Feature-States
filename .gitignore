@@ -1,4 +1,5 @@
 appsettings.Development.json
+appsettings.Development.*.json
 customfeaturestates.zip
 
 ## Ignore Visual Studio temporary files, build results, and
