@@ -10,7 +10,7 @@ if you're monitoring occupancy statuses, crowd levels, room temperatures, air qu
 The Azure Maps Custom Feature States project provides a set of back-end services as well as a front-end sample for styling Azure Maps map features in **real-time** based on updates received from external sources. 
 
 Although this functionality is natively supported by the Creator Indoor Maps API
-via the built-in [feature stateset](https://learn.microsoft.com/en-us/azure/azure-maps/how-to-creator-feature-stateset) capability, this project **does not use this offering**. Instead, the associated functionality is implemented externally while using the [`setFeatureState` API](https://learn.microsoft.com/en-us/javascript/api/azure-maps-control/atlas.sourcemanager?view=azure-maps-typescript-latest#azure-maps-control-atlas-sourcemanager-setfeaturestate) on the browser. Depending on your use-case, this design may allow for faster update latency, greater flexibility and lower costs.
+via the built-in [feature stateset](https://learn.microsoft.com/en-us/azure/azure-maps/how-to-creator-feature-stateset) capability, this project **does not use this offering**. Instead, the associated functionality is implemented externally  using the [`setFeatureState` API](https://learn.microsoft.com/en-us/javascript/api/azure-maps-control/atlas.sourcemanager?view=azure-maps-typescript-latest#azure-maps-control-atlas-sourcemanager-setfeaturestate) on the browser. Depending on your use-case, this design may allow for faster update latency, greater flexibility and lower costs.
 
 This project may be of interest to you if:
 
@@ -19,20 +19,30 @@ This project may be of interest to you if:
   - You'd like these updates to be visualized in real-time (desired updated latency between 1 and 30 seconds). 
   - Your estimated financial costs of receiving updates on the front-end (via repeated [feature state transactions](https://learn.microsoft.com/en-us/azure/azure-maps/understanding-azure-maps-transactions)) are too high. 
 
-## Getting Started in 5 Minutes
+## Getting Started in 15 Minutes
 
 Getting started is easy! If you're not a developer, follow these simple steps:
 
 1. **Azure Subscription**: Ensure you have an Azure subscription. If not, sign up for a free Azure subscription [here](https://azure.microsoft.com/free).
 
-2. **Azure Shell**: Log in to the Azure Shell [shell.azure.com](https://shell.azure.com/).
+2. **PowerShell 7**: Install PowerShell 7 from [here](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.3).
 
-3. **Deployment script**: Run this PowerShell command (copy and paste) to install the Azure Maps Custom Feature States project:
-```powershell
-iex (iwr "https://samples.azuremaps.com/customfeaturestates/deploy.ps1").Content
-```
+3. **Azure Command-Line Interface (CLI) Tools**: Install the Azure CLI by following the instructions [here](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli). Learn how to sign in [here](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively).
+   ```powershell
+   az login
+   ```
 
-The output should look similar to this:
+5. **Deployment script**: Run this PowerShell command (copy and paste) to install the Azure Maps Custom Feature States project:
+    ```powershell
+    iex (iwr "https://samples.azuremaps.com/customfeaturestates/deploy.ps1").Content
+    ```
+    **Note** that you may need to change some of the script parameters for your use-case; learn how to do this by running this command:
+    ```powershell
+    iwr "https://samples.azuremaps.com/customfeaturestates/deploy.ps1" -OutFile deploy.ps1
+    .\deploy.ps1 -Help
+    ```
+
+The output should look similar to the following:
 
 ```txt
 Starting...
@@ -73,7 +83,7 @@ If you're a developer looking to dig into the internals of the code and adapt it
 
 3. **PowerShell 7**: Install PowerShell 7 from [here](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.3).
 
-4. **Azure Command-Line Interface (CLI) Tools**: Learn how to install the Azure CLI by following the instructions [here](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli).
+4. **Azure Command-Line Interface (CLI) Tools**: Install the Azure CLI by following the instructions [here](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli). Learn how to sign in [here](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively).
 
 5. **Visual Studio 2022**: Download and install Visual Studio 2022 from [visualstudio.microsoft.com](https://visualstudio.microsoft.com/).
 
@@ -93,7 +103,7 @@ Follow these steps to get started with the Azure Maps Custom Feature States proj
 1. `rg-featurestates` - An [Azure Resource Group](https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/manage-resource-groups-portal) that holds all the created Azure resources in the architecture.
 2. `plan-featurestates` - An [Azure App Service plan](https://learn.microsoft.com/en-us/azure/app-service/overview-hosting-plans) that hosts the `web-featurestates` app.
 3. `web-featurestates` - An [Azure App Service](https://learn.microsoft.com/en-us/azure/app-service/overview) website and API with the following functionality:
-   1. Serves web-pages containing the [Azure Maps Web Control](https://learn.microsoft.com/en-us/azure/azure-maps/how-to-use-map-control). Features on the Web Contnrol are styled using the [setFeatureState](https://maplibre.org/maplibre-gl-js/docs/API/classes/maplibregl.Map/#setfeaturestate) API of Maplibre.
+   1. Serves web-pages containing the [Azure Maps Web Control](https://learn.microsoft.com/en-us/azure/azure-maps/how-to-use-map-control).
    2. Sends a snapshot of current feature states to web-pages containing the Web Control via SignalR.
    3. Hosts a REST API to receive feature state updates from external sources and propagates these updates to other components.
 4. `signalr-featurestates` - An [Azure SignalR Service](https://learn.microsoft.com/en-us/azure/azure-signalr/signalr-overview) that sends feature states snapshots and broadcasts updates over a real-time channel to web-pages containing the Web Control.
